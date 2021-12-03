@@ -3,17 +3,17 @@ log = false
 
 lines = []
 if test then
-    lines = File.readlines('./test-input').map(&:chomp)
+    lines = File.readlines('./test-input-1').map(&:chomp)
 else
-    lines = File.readlines('./input').map(&:chomp)
+    lines = File.readlines('./input-1').map(&:chomp)
 end
 
-inputWidth = lines.first().length()-1
+inputWidth = lines.first().length()
 bits = Array.new(inputWidth, nil);
 
 for index in 0..lines.length()-1 do
     line = lines[index]
-    for bit in 0..inputWidth do
+    for bit in 0..inputWidth-1 do
         if (bits[bit] == nil) then
             bits[bit] = []
         end
@@ -21,7 +21,7 @@ for index in 0..lines.length()-1 do
     end
 end
 
-for bit in 0..inputWidth do
+for bit in 0..inputWidth-1 do
     if (bits[bit].length() != lines.length()) then
         throw "#bit #{bit} bits[bit].length() != lines.length() #{bits[bit].length()} != #{lines.length()}"
     end
@@ -35,7 +35,7 @@ end
 gammaRateBits = []
 epsilonRateBits = []
 
-for bit in 0..inputWidth do
+for bit in 0..inputWidth-1 do
     nills = bits[bit].count('0')
     ones = bits[bit].count('1')
     bitsHave = bits[bit].join('')
