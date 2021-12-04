@@ -1,4 +1,4 @@
-lines = File.readlines('./input').map(&:chomp)
+lines = File.readlines('./input-1').map(&:chomp)
 
 increases = 0
 
