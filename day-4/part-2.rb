@@ -1,4 +1,4 @@
-@is_test = true
+@is_test = false
 
 
 class BingoNumber
@@ -148,29 +148,24 @@ end
 def play_bingo(boards, numbers)
     for number in numbers do
         number_of_boards = boards.length()
-        is_retry = true
+        winners = []
 
-        while is_retry do
-            is_retry = false
-            winners = []
+        for board in boards do
+            board.mark(number)
+            is_winner = board.is_winner?
+            last_board = boards.length() == 1
 
-            for board in boards do
-                board.mark(number)
-                is_winner = board.is_winner?
-                last_board = boards.length() == 1
-
-                if last_board then
-                    return board, number
-                end
-
-                if is_winner then
-                    winners.append(board)
-                end
+            if is_winner && last_board then
+                return board, number
             end
 
-            for winner in winners do
-                boards.delete(winner)
+            if is_winner then
+                winners.append(board)
             end
+        end
+
+        for winner in winners do
+            boards.delete(winner)
         end
     end
 
@@ -183,6 +178,8 @@ boards = build_boards(input_file)
 winner, winning_number = play_bingo(boards, numbers)
 
 puts "winner ##{winner.count}"
+puts winning_number
+puts winner
 puts winner.score(winning_number)
 
 if @is_test && winner.score(winning_number) != 1924 then
