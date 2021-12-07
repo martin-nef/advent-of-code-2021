@@ -1,4 +1,4 @@
-@is_test = true
+@is_test = false
 
 
 class BingoNumber
@@ -6,19 +6,17 @@ class BingoNumber
     @is_marked = false
 
     def initialize(number)
-        @number = number.to_s.chomp
+        @number = number.to_s.chomp.to_i
     end
 
     def try_mark(number)
-        number = number.to_s.chomp
         if (number == @number) then
-            puts "number #{number} marked"
             @is_marked = true
         end
     end
 
     def get_number()
-        return @number
+        return @number.to_i
     end
 
     def is_marked?()
@@ -45,10 +43,10 @@ class Board
             .join("\n")
     end
 
-    def mark(number)
+    def mark(number_to_mark)
         for row in @rows do
             for number in row do
-                number.try_mark(number)
+                number.try_mark(number_to_mark)
             end
         end
     end
@@ -69,8 +67,18 @@ class Board
         return false
     end
 
-    def score()
-        return 
+    def score(last_number_drawn)
+        score = 0
+
+        for row in @rows do
+            for number in row do
+                if (!number.is_marked?) then
+                    score += number.get_number
+                end
+            end
+        end
+
+        return last_number_drawn * score
     end
 
     private
@@ -89,6 +97,7 @@ class Board
 
     def parse_board(board_text)
         rows = []
+
         for row in board_text.chomp().split("\n").map(&:chomp) do
             numbers = row
                 .split(" ")
@@ -96,6 +105,7 @@ class Board
                 .map { |num| BingoNumber.new num }
             rows.append(numbers.to_a)
         end
+
         return rows
     end
 end
@@ -111,16 +121,18 @@ end
 
 
 def draw_numbers(input_file)
-    return input_file.first.split(',')
+    return input_file.first.chomp.split(',').map(&:chomp).map{ |num| num.to_i }
 end
 
 
 def build_boards(input_file)
     boards = []
     boards_as_text = input_file.drop(2).join("\n").split("\n\n")
+
     for board_text in boards_as_text do
         boards.append(Board.new(board_text))
     end
+
     return boards
 end
 
@@ -129,28 +141,24 @@ def play_bingo(boards, numbers)
     for number in numbers do
         for board in boards do
             board.mark(number)
+
             if board.is_winner? then
-                return board
+                return board, number
             end
         end
     end
+
+    return nil, nil
 end
 
 input_file = read_file()
 numbers = draw_numbers(input_file)
 boards = build_boards(input_file)
+winner, winning_number = play_bingo(boards, numbers)
 
-for board in boards do
-    puts board
-    puts
+if @is_test && winner.score(winning_number.to_i) != 4512 then
+    throw "expected score of 4512, but got #{winner.score.to_i}"
 end
 
-winner = play_bingo(boards, numbers)
 
-for board in boards do
-    puts board
-    puts
-end
-
-puts "winner"
-puts winner.to_s
+puts winner.score(winning_number)
