@@ -1,5 +1,5 @@
 @is_test = false
-@only_horizontal_or_vertical_lines = true
+@only_horizontal_or_vertical_lines = false
 
 def read_file()
     if @is_test then
@@ -188,6 +188,6 @@ overlapping_points = points.map {
 
 puts overlapping_points
 
-if @is_test && overlapping_points != 5 then
-    throw "expected 5 overlapping points, but got #{overlapping_points}"
+if @is_test && overlapping_points != 12 then
+    throw "expected 12 overlapping points, but got #{overlapping_points}"
 end
