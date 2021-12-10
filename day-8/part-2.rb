@@ -1,4 +1,3 @@
-require 'json'
 require 'set'
 
 @is_test = false
@@ -22,50 +21,6 @@ def format_code(code)
     code.chars.sort.uniq.join""
 end
 
-
-def print(input)
-    signals = input[:signal_patterns].map{|code|code.chars.sort.join""}.join"\n"
-    codes = input[:outputs].map{|code|code.chars.sort.join""}.join"\n"
-    digits = h_concat(input[:outputs].map{|code|print_digit(code)})
-    "#{h_concat([signals, codes])}\n\n#{digits}\n\n\n\n"
-end
-
-def print_h_row(letter)
-    " #{letter*4} \n"
-end
-
-def print_v_row(left, right)
-    "#{left}    #{right}\n"*2
-end
-
-
-
-def print_digit(code, map=nil)
-    if map == nil then
-        map = {
-            :a => 'a',
-            :b => 'b',
-            :c => 'c',
-            :d => 'd',
-            :e => 'e',
-            :f => 'f',
-            :g => 'g'
-        }
-    end
-    a = code.include?(map[:a]) ? map[:a] : ' '
-    b = code.include?(map[:b]) ? map[:b] : ' '
-    c = code.include?(map[:c]) ? map[:c] : ' '
-    d = code.include?(map[:d]) ? map[:d] : ' '
-    e = code.include?(map[:e]) ? map[:e] : ' '
-    f = code.include?(map[:f]) ? map[:f] : ' '
-    g = code.include?(map[:g]) ? map[:g] : ' '
-
-    print_h_row(a) +
-    print_v_row(b, c) +
-    print_h_row(d) +
-    print_v_row(e, f) +
-    print_h_row(g)
-end
 
 def h_concat(strs, sep="\t")
     a = strs.first
@@ -111,19 +66,14 @@ def populate_map(code, num_to_wire_map)
 end
 
 
-def set(str)
-    if str.is_a?(String) then
-        Set.new(str.chars)
-    end
-    if str.respond_to?(:first) then
-        Set.new(str.first.chars)
-    end
-end
-
 
 def update_map(code, num_to_wire_map)
+    def set(string_array)
+        Set.new(string_array.first.chars)
+    end
     code = format_code(code)
     char_set = Set.new(code.chars)
+
     # easy: 1 4 7 8
     top_segment = set(num_to_wire_map[7]) - set(num_to_wire_map[1])
     right_segments = set(num_to_wire_map[7]) - top_segment
@@ -176,8 +126,6 @@ def decode(input)
         throw "undecrypted: " + JSON.pretty_generate(non_decrypted)
     end
 
-    # puts JSON.pretty_generate(num_to_wire_map)
-
     wires_to_num_map = num_to_wire_map
         .map{|k,v|[v.first,k]}
         .to_h
@@ -201,8 +149,6 @@ decoded = inputs.map do |input|
     input[:output] = decode(input)
     input
 end
-
-
 
 output_sum = decoded.map{|input|input[:output]}.sum
 
