@@ -115,16 +115,34 @@ end
 
 
 model_number = '99999999999999'
+threads = 10000
 i = 0
 
 loop do
-    if MONAD.valid?(model_number)
+    nums = [model_number]
+    threads.times do |_|
+        nums.append(decrement(nums.last))
+    end
+
+    valid = []
+    nums.map do |n|
+        Thread.new do
+            if MONAD.valid?(model_number)
+                valid.append(model_number)
+            end
+        end
+    end.each(&:join)
+
+    if valid.any?
+        model_number = valid.map{|n|n.to_i}.max.to_s
         break
     end
-    if i%10000 == 0
-        puts "#invalid #{model_number}"
-    end
-    model_number = decrement(model_number)
+
+    # if i%1000 == 0
+        puts "invalid #{nums.first} - #{nums.last}"
+    # end
+
+    model_number = decrement(nums.last)
     i += 1
 end
 
